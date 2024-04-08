@@ -1,0 +1,1 @@
+python wait_for_es.py && python load_data.py

@@ -1,0 +1,32 @@
+{
+    "dynamic": "strict",
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "text",
+        "analyzer": "ru_en",
+        "fields": {
+          "raw": {
+            "type":  "keyword"
+          }
+        }
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "ru_en",
+        "fields": {
+          "raw": {
+            "type":  "keyword"
+          }
+        }
+      },
+      "created": {
+        "type": "date"
+      },
+      "modified": {
+        "type": "date"
+      }
+    }
+  }

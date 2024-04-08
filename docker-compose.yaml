@@ -1,0 +1,77 @@
+version: '3'
+services:
+  backend:
+    container_name: fastapi
+    build:
+      context: .
+    env_file:
+      - ./src/.env
+    volumes:
+      - .:/opt/app
+    ports:
+      - 8000:8000
+    networks:
+      - appnet
+
+  redis:
+    container_name: redis
+    image: redis:7.2.4
+    volumes:
+      - redis-data:/var/lib/redis
+      - redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    networks:
+      - appnet
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.6.2
+    env_file:
+      - ./.env
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - appnet
+    depends_on:
+      - redis
+
+  etl:
+     container_name: etl
+     build:
+       context: ./etl/.
+     restart: always
+     env_file:
+       - ./etl/.env
+     depends_on:
+       - postgres
+       - elasticsearch
+     networks:
+       - appnet
+     command: bash load_data.sh
+
+  postgres:
+    container_name: postgres
+    image: postgres:13
+    env_file:
+      - ./etl/.env
+    ports:
+      - 5432:5432
+    volumes:
+      - $HOME/postgresql/data:/var/lib/postgresql/data
+      - ./etl/datapsql/dump.sql:/datapsql/dump.sql:ro
+    networks:
+      - appnet
+    restart: always
+
+
+networks:
+  appnet:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+  redis-data:
+  redis.conf:
